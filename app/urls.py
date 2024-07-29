@@ -12,5 +12,4 @@ urlpatterns = [
     path('courses/', views.course_list, name='course_list'),
     path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
     path('teacher/', views.teacher, name='teacher'),
-]
-
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
