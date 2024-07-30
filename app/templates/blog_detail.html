@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="blog-detail">
+    <h1>{{ blog.title }}</h1>
+    <p>{{ blog.date_added }}</p>
+    <div>
+        {% for author in blog.auther_id.all %}
+            <p>Written by: {{ author.full_name }}</p>
+        {% endfor %}
+    </div>
+    <div class="content">
+        {{ blog.content|safe }}
+    </div>
+    <div class="images">
+        {% for image in blog.blogimage_set.all %}
+            <img src="{{ image.image.url }}" alt="{{ blog.title }}">
+        {% endfor %}
+    </div>
+    <div class="comments">
+        <h2>Comments</h2>
+        {% for comment in comments %}
+            <div class="comment">
+                <p><strong>{{ comment.name }}</strong> ({{ comment.rating }})</p>
+                <p>{{ comment.comment }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

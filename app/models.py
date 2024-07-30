@@ -1,12 +1,53 @@
 from django.db import models
 
+class Teacher(models.Model):
+    class RatingChoices(models.TextChoices):
+        Beginner = 'Beginner',
+        Junior = 'Junior',
+        Middle = 'Middle ',
+        Senior = 'Senior',
+        Expert = 'Expert'
 
-class Category(models.Model):
-    name = models.CharField(max_length=50)
+    full_name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    level = models.CharField(max_length=100, choices=RatingChoices.choices, default=RatingChoices.Junior.value)
+    twitter_link = models.CharField(max_length=150, null=True, blank=True)
+    facebook_link = models.CharField(max_length=150, null=True, blank=True)
+    linkedin_link = models.CharField(max_length=150, null=True, blank=True)
+    image = models.ImageField(upload_to='teachers/', null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.full_name
 
+class Author(models.Model):
+    full_name = models.CharField(max_length=100)
+    education = models.CharField(max_length=255, null=True, blank=True)
+    image = models.ImageField(upload_to='authors/')
+
+    def __str__(self):
+        return self.full_name
+
+class Blog(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    date_added = models.DateField(auto_now_add=True)
+    auther_id = models.ManyToManyField(Author, related_name='blogs')
+
+    def __str__(self):
+        return self.title
+
+class BlogImage(models.Model):
+    image = models.ImageField(upload_to='blog_images/')
+    blog_id = models.ForeignKey(Blog, on_delete=models.CASCADE)
+
+class Category(models.Model):
+    title = models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.title
 
 class Course(models.Model):
     title = models.CharField(max_length=100)
@@ -14,18 +55,26 @@ class Course(models.Model):
     number_of_students = models.IntegerField(default=0)
     price = models.FloatField()
     duration = models.IntegerField()
-    # Uncomment and define the Teacher model if needed
-    # teachers = models.ManyToManyField(Teacher)
-    video = models.FileField(upload_to='media/courses')
+    teachers = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    video = models.FileField(upload_to='courses/')
     category = models.ForeignKey(Category, related_name='courses', on_delete=models.CASCADE, null=True, blank=True)
 
-    def duration_of_video(self):
-        # Implement the actual logic if needed
-        pass
+    @property
+    def hours(self):
+        if self.duration >= 60:
+            hours = self.duration // 60
+            return hours
+
+    @property
+    def minutes(self):
+        if self.duration >= 60:
+            minutes = self.duration % 60
+            return minutes
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.title
-
 
 class Comment(models.Model):
     class RatingChoices(models.TextChoices):
@@ -39,8 +88,8 @@ class Comment(models.Model):
     name = models.CharField(max_length=50)
     email = models.EmailField(null=True, blank=True)
     comment = models.TextField()
-    rating = models.CharField(max_length=1, choices=RatingChoices.choices, default=RatingChoices.Zero)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='comments')
-
-    def __str__(self):
-        return f'{self.name} - {self.course.title}'
+    is_published = models.BooleanField(default=False)
+    rating = models.CharField(max_length=100, choices=RatingChoices.choices, default=RatingChoices.Zero.value)
+    course_id = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='comments')
+    blog_id = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='comments')
+    author_id = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='comments')

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="teacher-detail">
+    <h1>{{ teacher.full_name }}</h1>
+    <img src="{{ teacher.image.url }}" alt="{{ teacher.full_name }}">
+    <p>{{ teacher.description }}</p>
+    <p>Level: {{ teacher.get_level_display }}</p>
+    <div class="social-links">
+        {% if teacher.twitter_link %}
+            <a href="{{ teacher.twitter_link }}" target="_blank">Twitter</a>
+        {% endif %}
+        {% if teacher.facebook_link %}
+            <a href="{{ teacher.facebook_link }}" target="_blank">Facebook</a>
+        {% endif %}
+        {% if teacher.linkedin_link %}
+            <a href="{{ teacher.linkedin_link }}" target="_blank">LinkedIn</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
