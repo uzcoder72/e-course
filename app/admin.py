@@ -1,12 +1,9 @@
 from django.contrib import admin
-from .models import Category, Course, Comment, Blog, BlogImage, Teacher, Author
+from .models import Category, Course, Comment, Blog,  Teacher, Author
 
-class BlogImageInline(admin.TabularInline):
-    model = BlogImage
-    extra = 1
+
 
 class BlogAdmin(admin.ModelAdmin):
-    inlines = [BlogImageInline]
     list_display = ('title', 'date_added')
     search_fields = ('title', 'content')
     list_filter = ('date_added', 'auther_id')

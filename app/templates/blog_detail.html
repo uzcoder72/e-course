@@ -1,30 +1,154 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="blog-detail">
-    <h1>{{ blog.title }}</h1>
-    <p>{{ blog.date_added }}</p>
-    <div>
-        {% for author in blog.auther_id.all %}
-            <p>Written by: {{ author.full_name }}</p>
-        {% endfor %}
-    </div>
-    <div class="content">
-        {{ blog.content|safe }}
-    </div>
-    <div class="images">
-        {% for image in blog.blogimage_set.all %}
-            <img src="{{ image.image.url }}" alt="{{ blog.title }}">
-        {% endfor %}
-    </div>
-    <div class="comments">
-        <h2>Comments</h2>
-        {% for comment in comments %}
-            <div class="comment">
-                <p><strong>{{ comment.name }}</strong> ({{ comment.rating }})</p>
-                <p>{{ comment.comment }}</p>
+<!-- Header Start -->
+<div class="container-fluid page-header" style="margin-bottom: 90px;">
+    <div class="container">
+        <div class="d-flex flex-column justify-content-center" style="min-height: 300px">
+            <h3 class="display-4 text-white text-uppercase">{{ blog.title }}</h3>
+            <div class="d-inline-flex text-white">
+                <p class="m-0 text-uppercase"><a class="text-white" href="{% url 'index' %}">Home</a></p>
+                <i class="fa fa-angle-double-right pt-1 px-3"></i>
+                <p class="m-0 text-uppercase">{{ blog.title }}</p>
             </div>
-        {% endfor %}
+        </div>
     </div>
 </div>
+<!-- Header End -->
+
+<!-- Detail Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="mb-5">
+                    <h1 class="mb-5">{{ blog.title }}</h1>
+                    {% if blog.image %}
+                        <img class="img-fluid rounded w-100 mb-4" src="{{ blog.image.url }}" alt="{{ blog.title }}">
+                    {% else %}
+                        <img class="img-fluid rounded w-100 mb-4" src="{% static 'img/carousel-1.jpg' %}" alt="Image">
+                    {% endif %}
+                    <p>{{ blog.content }}</p>
+                </div>
+
+                <!-- Comment List -->
+                <div class="mb-5">
+                    <h3 class="text-uppercase mb-4" style="letter-spacing: 5px;">{{ comments.count }} Comments</h3>
+                    {% if comments %}
+                        {% for comment in comments %}
+                            <div class="media mb-4">
+                                <img src="{% static 'img/user.jpg' %}" alt="Image" class="img-fluid rounded-circle mr-3 mt-1" style="width: 45px;">
+                                <div class="media-body">
+                                    <h6>{{ comment.name }}<small><i> {{ comment.written }}</i></small></h6>
+                                    <p>{{ comment.comment }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <h5 style="color: darkred">No comments yet.</h5>
+                        <p>Be the first to comment!</p>
+                    {% endif %}
+                </div>
+
+                <!-- Comment Form -->
+                <div class="bg-secondary rounded p-5">
+                    <h3 class="text-uppercase mb-4" style="letter-spacing: 5px;">Leave a comment</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="name">Name *</label>
+                            <input type="text" name="name" class="form-control border-0" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" name="email" class="form-control border-0" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Comment *</label>
+                            <textarea name="comment" id="comment" cols="30" rows="5" class="form-control border-0" required></textarea>
+                        </div>
+                        <div class="form-group mb-0">
+                            <input type="submit" value="Leave Comment" class="btn btn-primary py-md-2 px-md-4 font-weight-semi-bold">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mt-5 mt-lg-0">
+                <!-- Category List -->
+                <div class="mb-5">
+                    <h3 class="text-uppercase mb-4" style="letter-spacing: 5px;">Categories</h3>
+                    <ul class="list-group list-group-flush">
+                        {% if categories %}
+                            {% for category in categories %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <a href="{% url 'category_detail' category.slug %}" class="text-decoration-none h6 m-0">{{ category.title }}</a>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="list-group-item">No categories found.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Recent Post -->
+                <div class="mb-5">
+                    <h3 class="text-uppercase mb-4" style="letter-spacing: 5px;">Recent Posts</h3>
+                    {% if blogs %}
+                        {% for blog in blogs %}
+                            <a class="d-flex align-items-center text-decoration-none mb-3" href="{% url 'blog_detail' blog.slug %}">
+                                {% if blog.image %}
+                                    <img class="img-fluid rounded" src="{{ blog.image.url }}" alt="{{ blog.title }}">
+                                {% else %}
+                                    <img class="img-fluid rounded" src="{% static 'img/blog-80x80.jpg' %}" alt="Image">
+                                {% endif %}
+                                <div class="pl-3">
+                                    <h6 class="m-1">{{ blog.title }}</h6>
+                                    <small>{{ blog.date_added }}</small>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <p>No recent posts found.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Tag Cloud -->
+                <div class="mb-5">
+                    <h3 class="text-uppercase mb-4" style="letter-spacing: 5px;">Tag Cloud</h3>
+                    <div class="d-flex flex-wrap m-n1">
+                        {% if categories %}
+                            {% for category in categories %}
+                                <a href="{% url 'category_detail' category.slug %}" class="btn btn-outline-primary m-1">{{ category.title }}</a>
+                            {% endfor %}
+                        {% else %}
+                            <p>No tags found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Display Blog Title -->
+<h1>{{ blog.title }}</h1>
+
+<!-- Display Blog Content -->
+<p>{{ blog.content }}</p>
+
+<!-- Display Comments -->
+<h3>Comments</h3>
+{% if comments %}
+    {% for comment in comments %}
+        <div>
+            <p><strong>{{ comment.name }}</strong> - {{ comment.written }}</p>
+            <p>{{ comment.comment }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No comments yet.</p>
+{% endif %}
+
+<!-- Detail End -->
 {% endblock %}
