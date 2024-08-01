@@ -146,16 +146,6 @@ class AboutPage(View):
 
         return render(request, 'about.html', context)
 
-# from django.views.generic import TemplateView
-#
-# class MyView(TemplateView):
-#     template_name = 'my_template.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['site_name'] = 'My Awesome Site'
-#         context['user_name'] = 'John Doe'
-#         return context
 
 
 
@@ -174,13 +164,16 @@ class TeachersPage(View):
 
 
 
+
 class TeachersDetail(View):
     def get(self, request, slug):
-        teacher = Teacher.objects.get(slug=slug)
+        teacher = get_object_or_404(Teacher, slug=slug)
         categories = Category.objects.all()
 
-        context = {'teacher': teacher,
-                   'categories': categories, }
+        context = {
+            'teacher': teacher,
+            'categories': categories,
+        }
 
         return render(request, 'teacher_detail.html', context)
 
@@ -191,3 +184,4 @@ class LogoutView(View):
     def get(self, request):
         logout(request)
         return redirect('auth')
+
